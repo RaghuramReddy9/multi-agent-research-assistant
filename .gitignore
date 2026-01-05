@@ -1,5 +1,37 @@
-.venv
-uv.lock
-.env
--python_env/
+# Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs & runtime artifacts
+*.log
+
+# LangGraph / LangChain artifacts (if any)
+.graph_cache/
+.langgraph/
+
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

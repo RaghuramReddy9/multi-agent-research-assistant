@@ -8,11 +8,19 @@ class ResearchItem(TypedDict):
 
 
 class GraphState(TypedDict):
+    """
+    GraphState is the single source of truth for the system.
+    All agents must read/write exclusively through this state.
+    This enables deterministic execution, retries, and observability.
+    """
     # original user input
     user_query: str
 
     # planer output
     plan: List[str]
+
+    # Which task is currently in process
+    current_task: str
 
     # Research results keyed by task name
     research_results: Dict[str, List[ResearchItem]]
