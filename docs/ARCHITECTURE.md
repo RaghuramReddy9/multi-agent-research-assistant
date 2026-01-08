@@ -92,8 +92,6 @@ Convert an ambiguous, high-level user question into a **structured and actionabl
 - Enables parallel research
 - Makes system behavior explainable and auditable
 
----
-
 ## 2. Research Agents (Parallel Workers)
 
 Each research agent executes one task from the plan and produces factual, evidence-backed results.
@@ -129,8 +127,6 @@ Each research agent executes one task from the plan and produces factual, eviden
 - No final recommendations
 - Facts, evidence, and confidence only
 
----
-
 ## 3. Critic / Verifier Agent
 
 ### Purpose
@@ -157,8 +153,6 @@ Act as a quality control gate before synthesis.
 - Prevents weak data from influencing decisions
 - Makes evaluation explicit rather than implicit
 - Reflects production-grade AI validation practices
-
----
 
 ## 4. Synthesizer Agent
 
@@ -198,8 +192,71 @@ All execution order, retries, and state transitions are controlled by LangGraph,
 
 ---
 
+## Observability & Evaluation Architecture
+
+This system is instrumented with a production-grade observability layer
+to monitor performance, reliability, and operational health of the
+multi-agent research workflow.
+
+### Request Lifecycle
+
+- One request is defined as a single user research query processed
+  end-to-end through the planner, expert agents, tools, and synthesizer.
+- A unique `request_id` is generated at the entry point (`main.py`)
+  and propagated through shared state across all agents and tools.
+
+### Metrics Collection
+
+The following metrics are collected for system-level and agent-level
+visibility:
+
+- `requests_total`
+- `requests_success_total`
+- `requests_failure_total`
+- `request_latency_ms`
+- `agent_latency_ms{agent_name}`
+- `agent_errors_total{agent_name}`
+- `tokens_input_total`
+- `tokens_output_total`
+
+Metrics are exposed via a `/metrics` endpoint and scraped by Prometheus.
+
+### Logging
+
+Structured log events are emitted at key execution points:
+
+- `request_started`
+- `agent_started`
+- `agent_finished`
+- `agent_error`
+- `request_finished`
+
+All log events include `request_id` to enable end-to-end tracing.
+
+### Success & Failure Semantics
+
+- A request is considered **successful** if all agents complete execution
+  and a final synthesized answer is produced.
+- A request is considered **failed** if any required agent raises an
+  unhandled exception or the system fails to return a final answer.
+
+### Service-Level Objectives (SLOs)
+
+Initial reliability targets for the system:
+
+- p95 request latency < 12 seconds
+- success rate ≥ 98%
+- error rate ≤ 2%
+
+These SLOs guide performance tuning, alerting, and future optimization.
+
+
+--- 
+
 ## Key Design Principles
 - Single-responsibility agents
 - Shared state as the source of truth
 - Explicit handoffs and quality gates
-- Extendable to monitoring, cost tracking, and observability
+- Monitoring, cost tracking, and observability
+
+---
