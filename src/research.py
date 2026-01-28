@@ -4,6 +4,9 @@ from langchain_core.output_parsers import StrOutputParser
 from src.state import GraphState
 from src.parsers import parse_research_output
 
+import time
+from src.observability.metrics import AGENT_ERRORS, AGENT_LATENCY
+
 
 
 RESEARCH_SYSTEM_PROMPT = """
@@ -33,6 +36,8 @@ def research_node(state: GraphState, llm) -> GraphState:
     - Executes one research task
     - Stores structured findings in shared state
     """
+    start_time = time.time()
+
     task = state["current_task"].strip()
     if not task:
         return state
@@ -56,5 +61,14 @@ def research_node(state: GraphState, llm) -> GraphState:
         return state
 
     state["research_results"][task] = findings
-    return state
+
+    try:
+        # research logic
+        return state
+    except Exception as e:
+        AGENT_ERRORS.labels(agent_name="research").inc()
+        raise e 
+    finally:
+        elapsed_ms = (time.time() - start_time) * 1000
+        AGENT_LATENCY.labels(agent_name="research").observe(elapsed_ms)
 

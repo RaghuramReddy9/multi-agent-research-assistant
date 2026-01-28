@@ -3,6 +3,9 @@ from __future__ import annotations
 from typing import List
 from src.state import GraphState, ResearchItem
 
+import time
+from src.observability.metrics import AGENT_ERRORS, AGENT_LATENCY
+
 
 def _flatten_approved_findings(state: GraphState) -> List[tuple[str, ResearchItem]]:
     approved = []
@@ -15,6 +18,9 @@ def _flatten_approved_findings(state: GraphState) -> List[tuple[str, ResearchIte
 
 
 def synthesizer_node(state: GraphState, llm) -> GraphState:
+    # Add timing
+    start_time = time.time()
+
     approved = _flatten_approved_findings(state)
 
     if not approved:
@@ -47,4 +53,13 @@ def synthesizer_node(state: GraphState, llm) -> GraphState:
 
     state["final_report"] = report
     state["confidence_score"] = round(avg_conf, 3)
-    return state
+
+    try:
+        # synthesizer logic
+        return state
+    except Exception as e:
+        AGENT_ERRORS.labels(agent_name="synthesizer").inc()
+        raise e
+    finally:
+        elapsed_ms = (time.time() - start_time) * 1000
+        AGENT_LATENCY.labels(agent_name="synthesizer").observe(elapsed_ms)

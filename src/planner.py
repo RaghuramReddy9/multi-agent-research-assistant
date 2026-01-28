@@ -4,6 +4,9 @@ from langchain_core.output_parsers import StrOutputParser
 
 from src.state import GraphState
 
+import time
+from src.observability.metrics import AGENT_ERRORS, AGENT_LATENCY
+
 
 PLANNER_SYSTEM_PROMPT = """
 You are a senior research planner.
@@ -30,6 +33,8 @@ def planner_node(state: GraphState, llm) -> GraphState:
     - Generates a structured research plan
     - Writes plan back into state
     """
+    start_time = time.time()
+
     prompt = ChatPromptTemplate.from_messages(
         [
         ("system", PLANNER_SYSTEM_PROMPT),
@@ -44,8 +49,20 @@ def planner_node(state: GraphState, llm) -> GraphState:
     plan = _parse_plan(raw_plan)
 
     state["plan"] = plan
-    return state
 
+    try:
+        # planner logic
+        return state
+    
+    except Exception as e:
+        AGENT_ERRORS.labels(agent_name="planner").inc()
+        raise e
+    
+    finally:
+        elapsed_ms = (time.time() - start_time) * 1000
+        AGENT_LATENCY.labels(agent_name="planner").observe(elapsed_ms)
+
+   
 
 def _parse_plan(text: str) -> List[str]:
     """

@@ -1,5 +1,8 @@
 from src.state import GraphState
 
+import time
+from src.observability.metrics import AGENT_ERRORS, AGENT_LATENCY
+
 
 MIN_CONFIDENCE_THRESHOLD = 0.85
 
@@ -10,6 +13,9 @@ def critic_node(state: GraphState) -> GraphState:
     - Evaluates research quality for a single task
     - Decides whether results are acceptable or need retry
     """
+    # Initialize timing
+    start_time = time.time()
+
     results = state["research_results"]
     flags = state["quality_flags"]
 
@@ -38,4 +44,14 @@ def critic_node(state: GraphState) -> GraphState:
     else:
         state["quality_flags"][task] = "needs_retry"
 
-    return state
+    try:
+        # critic logic
+        return state
+    
+    except Exception as e:
+        AGENT_ERRORS.labels(agent_name="critic").inc()
+        raise e
+    
+    finally:
+        elapsed_ms = (time.time() - start_time) * 1000
+        AGENT_LATENCY.labels(agent_name="critic").observe(elapsed_ms)
