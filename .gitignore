@@ -1,3 +1,84 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.pyd
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+venv.bak/
+python-env/
+
+# Testing
+.pytest_cache/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+
+# MyPy / type checkers
+.mypy_cache/
+.pyright/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and databases
+*.log
+logs/
+*.sqlite3
+
+# Environment and secrets
+.env
+.env.*
+secrets.json
+*.pem
+*.key
+
+# Docker / local configs
+docker-compose.override.yml
+.envrc
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Jupyter
+.ipynb_checkpoints
+
+# Wheels
+*.whl
+
+# Node (if any front-end appears later)
+node_modules/
+
+# Misc
+*.egg
+*.egg-info
 # Python
 __pycache__/
 *.py[cod]

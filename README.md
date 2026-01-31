@@ -117,6 +117,13 @@ After execution, the system prints:
 
 ---
 
+## Observability Artifacts
+
+The repository includes a Grafana dashboard JSON export under `observability/`.
+This allows offline review of the monitoring setup without requiring a running Grafana instance.
+
+---
+
 ## Why This Matters
 
 Most AI demos stop at chatbots.
